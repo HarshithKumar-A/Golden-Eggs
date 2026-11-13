@@ -1,0 +1,3328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>EGG SOCIETY — Private Culinary Ledger</title>
+
+  <!-- Google Fonts: Manrope & Cormorant Garamond for Luxury Club Accents -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Three.js & GSAP & Lucide Icons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-primary: #090A0F;
+      --bg-secondary: #15151D;
+      --bg-elevated: rgba(25, 26, 36, 0.72);
+      --bg-glass: rgba(21, 21, 29, 0.65);
+      --bg-glass-strong: rgba(16, 17, 24, 0.92);
+      --gold: #D6B46A;
+      --gold-light: #F0D799;
+      --gold-dark: #9E7D3B;
+      --gold-glow: rgba(214, 180, 106, 0.22);
+      --gold-border: rgba(214, 180, 106, 0.26);
+      --ivory: #F5F0E6;
+      --text-main: #F5F0E6;
+      --text-muted: #9496A4;
+      --text-dim: #5E6070;
+      --border-subtle: rgba(245, 240, 230, 0.08);
+      --danger: #E06C75;
+      --danger-bg: rgba(224, 108, 117, 0.14);
+      --success: #7EC699;
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --shadow-luxury: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(214, 180, 106, 0.12);
+      --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-image:
+        radial-gradient(circle at 50% 0%, rgba(214, 180, 106, 0.12) 0%, transparent 55%),
+        radial-gradient(circle at 85% 90%, rgba(214, 180, 106, 0.05) 0%, transparent 45%);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* App Container Shell - Mobile-First with Luxury Desktop Framing */
+    .app-shell {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: calc(108px + var(--safe-bottom));
+      background: linear-gradient(180deg, rgba(9, 10, 15, 0.4) 0%, rgba(9, 10, 15, 0.96) 100%);
+      border-left: 1px solid rgba(255, 255, 255, 0.04);
+      border-right: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 0 90px rgba(0, 0, 0, 0.85);
+      overflow-x: hidden;
+      transition: padding-bottom 0.3s ease;
+    }
+
+    .app-shell.no-bottom-nav {
+      padding-bottom: 32px;
+    }
+
+    /* Top Club Bar */
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: rgba(9, 10, 15, 0.78);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .brand-cluster {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .brand-emblem {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 55%, var(--gold-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 18px rgba(214, 180, 106, 0.4);
+      color: #090A0F;
+      font-weight: 800;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .brand-titles {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      color: var(--ivory);
+      text-transform: uppercase;
+    }
+
+    .brand-subtitle {
+      font-size: 10px;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .room-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(214, 180, 106, 0.1);
+      border: 1px solid var(--gold-border);
+      color: var(--ivory);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      max-width: 165px;
+    }
+
+    .room-pill-btn span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .room-pill-btn:hover, .room-pill-btn:active {
+      background: rgba(214, 180, 106, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      color: var(--gold);
+      border-color: var(--gold-border);
+      background: rgba(214, 180, 106, 0.08);
+    }
+
+    /* 3D Hero Stage */
+    .hero-stage-wrapper {
+      position: relative;
+      width: 100%;
+      height: 250px;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border-subtle);
+      background: radial-gradient(circle at 50% 42%, rgba(214, 180, 106, 0.16) 0%, rgba(21, 21, 29, 0.4) 52%, rgba(9, 10, 15, 0.95) 100%);
+      transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .hero-stage-wrapper.compact {
+      height: 175px;
+    }
+
+    #egg-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+
+    #egg-canvas:active {
+      cursor: grabbing;
+    }
+
+    /* CSS Fallback Egg if WebGL unavailable */
+    .webgl-fallback {
+      display: none;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .fallback-egg {
+      width: 84px;
+      height: 112px;
+      border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+      background: radial-gradient(circle at 35% 30%, #FFF6D6, #D6B46A 55%, #6E521F 95%);
+      box-shadow: 0 18px 40px rgba(214, 180, 106, 0.35), inset 0 -10px 20px rgba(0,0,0,0.45);
+      animation: floatEgg 3.6s ease-in-out infinite;
+    }
+
+    @keyframes floatEgg {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 14px 18px;
+    }
+
+    .hero-top-badges {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .luxury-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: rgba(9, 10, 15, 0.72);
+      border: 1px solid rgba(214, 180, 106, 0.25);
+      backdrop-filter: blur(10px);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gold-light);
+      letter-spacing: 0.06em;
+    }
+
+    .hero-bottom-caption {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .hero-caption-left h1 {
+      font-family: var(--font-serif);
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--ivory);
+      line-height: 1.05;
+      letter-spacing: 0.01em;
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.85);
+    }
+
+    .hero-caption-left p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .hero-stat-pill {
+      text-align: right;
+      background: rgba(9, 10, 15, 0.78);
+      border: 1px solid var(--gold-border);
+      padding: 7px 12px;
+      border-radius: var(--radius-md);
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-stat-pill .val {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1.1;
+    }
+
+    .hero-stat-pill .lbl {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    /* Main Content Area */
+    .main-stage {
+      padding: 18px 16px 32px;
+      flex: 1;
+    }
+
+    .screen-view {
+      display: none;
+      animation: fadeScreen 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .screen-view.active {
+      display: block;
+    }
+
+    @keyframes fadeScreen {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Week Navigation Strip */
+    .week-selector-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 14px;
+      background: var(--bg-glass);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 16px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    .week-nav-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--ivory);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .week-nav-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(214, 180, 106, 0.1);
+    }
+
+    .week-info-center {
+      text-align: center;
+      flex: 1;
+      padding: 0 8px;
+    }
+
+    .week-tag {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .week-range-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ivory);
+      margin-top: 2px;
+    }
+
+    .week-today-chip {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: rgba(214, 180, 106, 0.18);
+      color: var(--gold-light);
+      cursor: pointer;
+      border: none;
+      font-weight: 700;
+    }
+
+    /* Section Headings */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 20px 0 12px;
+    }
+
+    .section-header:first-child {
+      margin-top: 4px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .section-title i, .section-title svg {
+      color: var(--gold);
+      width: 15px;
+      height: 15px;
+    }
+
+    .section-action-btn {
+      background: transparent;
+      border: 1px solid var(--gold-border);
+      color: var(--gold-light);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .section-action-btn:hover {
+      background: rgba(214, 180, 106, 0.15);
+    }
+
+    /* Luxury Glass Cards */
+    .glass-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+      transition: transform 0.25s ease, border-color 0.25s ease;
+    }
+
+    .glass-card.gold-edge {
+      border-color: var(--gold-border);
+      background: linear-gradient(145deg, rgba(214, 180, 106, 0.09) 0%, rgba(21, 21, 29, 0.78) 100%);
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .kpi-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 13px 11px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 20%;
+      right: 20%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(214, 180, 106, 0.45), transparent);
+    }
+
+    .kpi-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--ivory);
+      line-height: 1.15;
+    }
+
+    .kpi-value.gold {
+      color: var(--gold);
+    }
+
+    .kpi-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Room Cards */
+    .rooms-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .room-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s ease;
+    }
+
+    .room-card:hover {
+      border-color: var(--gold-border);
+      transform: translateY(-2px);
+    }
+
+    .room-card.active-room {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, rgba(214, 180, 106, 0.13) 0%, rgba(21, 21, 29, 0.85) 100%);
+      box-shadow: 0 12px 32px rgba(214, 180, 106, 0.12);
+    }
+
+    .room-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .room-card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ivory);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .active-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 10px var(--gold);
+    }
+
+    .room-card-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .room-egg-badge {
+      background: rgba(214, 180, 106, 0.14);
+      border: 1px solid var(--gold-border);
+      padding: 6px 11px;
+      border-radius: 12px;
+      text-align: right;
+    }
+
+    .room-egg-badge .count {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--gold-light);
+    }
+
+    .room-egg-badge .unit {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .room-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .avatar-stack {
+      display: flex;
+      align-items: center;
+    }
+
+    .avatar-chip {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #232433;
+      border: 1.5px solid var(--gold-border);
+      color: var(--ivory);
+      font-size: 10px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: -7px;
+    }
+
+    /* Buttons */
+    .btn-gold {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 235, 185, 0.4);
+      background: linear-gradient(135deg, #E5C67E 0%, #C8A153 50%, #A98235 100%);
+      color: #090A0F;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 10px 25px rgba(214, 180, 106, 0.28);
+      transition: all 0.22s ease;
+    }
+
+    .btn-gold:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(214, 180, 106, 0.38);
+      filter: brightness(1.05);
+    }
+
+    .btn-gold:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--ivory);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--gold-border);
+      background: rgba(214, 180, 106, 0.08);
+    }
+
+    /* Leaderboard List */
+    .leaderboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .leader-row {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 13px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease;
+    }
+
+    .leader-row.rank-1 {
+      border-color: rgba(214, 180, 106, 0.55);
+      background: linear-gradient(135deg, rgba(214, 180, 106, 0.16) 0%, rgba(21, 21, 29, 0.85) 100%);
+      box-shadow: 0 10px 28px rgba(214, 180, 106, 0.12);
+    }
+
+    .leader-row.rank-2 {
+      border-color: rgba(220, 224, 235, 0.25);
+    }
+
+    .leader-row.rank-3 {
+      border-color: rgba(205, 145, 95, 0.28);
+    }
+
+    .rank-badge {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .rank-1 .rank-badge {
+      background: linear-gradient(135deg, #F5DF9E, #C9A04E);
+      color: #090A0F;
+      border: none;
+      box-shadow: 0 0 14px rgba(214, 180, 106, 0.5);
+    }
+
+    .rank-2 .rank-badge {
+      background: rgba(230, 234, 242, 0.16);
+      color: #E6EAF2;
+      border-color: rgba(230, 234, 242, 0.35);
+    }
+
+    .rank-3 .rank-badge {
+      background: rgba(212, 149, 106, 0.16);
+      color: #E5A97C;
+      border-color: rgba(212, 149, 106, 0.35);
+    }
+
+    .member-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #252736, #161722);
+      border: 1px solid var(--gold-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      color: var(--gold-light);
+      flex-shrink: 0;
+    }
+
+    .leader-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .leader-name-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .leader-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ivory);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .crown-pill {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: rgba(214, 180, 106, 0.22);
+      color: var(--gold-light);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .leader-progress-track {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 99px;
+      margin-top: 7px;
+      overflow: hidden;
+    }
+
+    .leader-progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+      transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .leader-score {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .leader-score .eggs {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ivory);
+    }
+
+    .rank-1 .leader-score .eggs {
+      color: var(--gold-light);
+    }
+
+    .leader-score .sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    /* 7-Day Bar Chart */
+    .daily-chart-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      align-items: end;
+      height: 148px;
+      padding-top: 18px;
+    }
+
+    .day-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .day-bar-val {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold-light);
+      min-height: 15px;
+    }
+
+    .day-bar-track {
+      width: 100%;
+      max-width: 28px;
+      height: 86px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: flex-end;
+      padding: 2px;
+      overflow: hidden;
+    }
+
+    .day-bar-fill {
+      width: 100%;
+      border-radius: 6px;
+      background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 65%, var(--gold-dark) 100%);
+      transition: height 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      min-height: 4px;
+    }
+
+    .day-col.is-today .day-bar-track {
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(214, 180, 106, 0.2);
+    }
+
+    .day-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .day-col.is-today .day-lbl {
+      color: var(--gold);
+    }
+
+    .day-date-num {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: -4px;
+    }
+
+    /* Consumption Log List */
+    .entries-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .entry-item {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 11px 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .entry-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .entry-meta-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ivory);
+    }
+
+    .entry-meta-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .entry-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .entry-qty-pill {
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: rgba(214, 180, 106, 0.14);
+      border: 1px solid var(--gold-border);
+      color: var(--gold-light);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .mini-icon-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mini-icon-btn:hover {
+      color: var(--ivory);
+      border-color: var(--gold-border);
+    }
+
+    .mini-icon-btn.danger:hover {
+      color: var(--danger);
+      border-color: rgba(224, 108, 117, 0.4);
+      background: var(--danger-bg);
+    }
+
+    /* Members Grid */
+    .members-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .member-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .member-card-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .member-card-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ivory);
+    }
+
+    .member-card-stats {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Floating Add Consumption Action Button */
+    .fab-wrapper {
+      position: fixed;
+      bottom: calc(78px + var(--safe-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      padding: 0 16px;
+      pointer-events: none;
+      z-index: 35;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .fab-add-btn {
+      pointer-events: auto;
+      padding: 13px 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 240, 200, 0.5);
+      background: linear-gradient(135deg, #EDD18E 0%, #D6B46A 50%, #A88134 100%);
+      color: #090A0F;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 12px 32px rgba(214, 180, 106, 0.42), 0 0 0 4px rgba(9, 10, 15, 0.7);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .fab-add-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 16px 36px rgba(214, 180, 106, 0.55), 0 0 0 4px rgba(9, 10, 15, 0.8);
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: rgba(12, 13, 19, 0.88);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-top: 1px solid rgba(214, 180, 106, 0.18);
+      padding: 8px 12px calc(10px + var(--safe-bottom));
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      z-index: 40;
+    }
+
+    .nav-item {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 4px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      transition: all 0.22s ease;
+      position: relative;
+    }
+
+    .nav-item span {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    .nav-item.active {
+      color: var(--gold);
+      background: rgba(214, 180, 106, 0.1);
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 24px;
+      height: 2px;
+      border-radius: 99px;
+      background: var(--gold);
+      box-shadow: 0 0 8px var(--gold);
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 5, 9, 0.78);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      animation: fadeBackdrop 0.25s ease;
+    }
+
+    @keyframes fadeBackdrop {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-sheet {
+      width: 100%;
+      max-width: 480px;
+      max-height: 92vh;
+      overflow-y: auto;
+      background: var(--bg-glass-strong);
+      border-top: 1px solid var(--gold-border);
+      border-radius: 26px 26px 0 0;
+      padding: 20px 18px calc(24px + var(--safe-bottom));
+      box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.85);
+      animation: slideUpSheet 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @media (min-width: 520px) {
+      .modal-backdrop {
+        align-items: center;
+        padding: 16px;
+      }
+      .modal-sheet {
+        border-radius: 24px;
+        border: 1px solid var(--gold-border);
+      }
+    }
+
+    @keyframes slideUpSheet {
+      from { transform: translateY(40px); opacity: 0.4; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--ivory);
+    }
+
+    /* Mandatory Step-by-Step Consumption Modal Styling */
+    .step-block {
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: var(--radius-md);
+      padding: 13px;
+      margin-bottom: 12px;
+      transition: all 0.25s ease;
+    }
+
+    .step-block.locked {
+      opacity: 0.42;
+      pointer-events: none;
+      filter: grayscale(0.4);
+    }
+
+    .step-block.active-step {
+      border-color: var(--gold-border);
+      background: rgba(214, 180, 106, 0.05);
+    }
+
+    .step-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 9px;
+    }
+
+    .step-badge {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--gold);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .step-status {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .week-confirm-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .week-picker-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(9, 10, 15, 0.65);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 8px 10px;
+    }
+
+    .confirm-week-btn {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--gold);
+      background: rgba(214, 180, 106, 0.16);
+      color: var(--gold-light);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .confirm-week-btn.confirmed {
+      background: rgba(126, 198, 153, 0.16);
+      border-color: rgba(126, 198, 153, 0.5);
+      color: var(--success);
+    }
+
+    /* Member Pills Selector */
+    .member-pills-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .member-select-pill {
+      padding: 9px 10px;
+      border-radius: 11px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(9, 10, 15, 0.55);
+      color: var(--ivory);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.18s ease;
+    }
+
+    .member-select-pill.selected {
+      border-color: var(--gold);
+      background: rgba(214, 180, 106, 0.18);
+      box-shadow: 0 0 15px rgba(214, 180, 106, 0.16);
+    }
+
+    /* 7-Day Selector Pills inside Modal */
+    .days-Clean-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .day-select-pill {
+      padding: 8px 2px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(9, 10, 15, 0.55);
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .day-select-pill .d-name {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .day-select-pill .d-num {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--ivory);
+    }
+
+    .day-select-pill.selected {
+      border-color: var(--gold);
+      background: linear-gradient(145deg, rgba(214, 180, 106, 0.28), rgba(214, 180, 106, 0.1));
+      color: var(--gold-light);
+    }
+
+    /* Quantity Stepper */
+    .qty-control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .qty-stepper-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      border: 1px solid var(--gold-border);
+      background: rgba(214, 180, 106, 0.1);
+      color: var(--gold-light);
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qty-display {
+      flex: 1;
+      text-align: center;
+      background: rgba(9, 10, 15, 0.65);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 8px;
+    }
+
+    .qty-display .num {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1.1;
+    }
+
+    .qty-display .unit {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .preset-chips {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .preset-chip {
+      flex: 1;
+      padding: 7px 0;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .preset-chip.active {
+      border-color: var(--gold);
+      color: var(--gold-light);
+      background: rgba(214, 180, 106, 0.14);
+    }
+
+    /* Form Inputs */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .luxury-input {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(9, 10, 15, 0.75);
+      color: var(--ivory);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .luxury-input:focus {
+      border-color: var(--gold);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 28px 16px;
+      border: 1px dashed rgba(214, 180, 106, 0.22);
+      border-radius: var(--radius-lg);
+      background: rgba(21, 21, 29, 0.35);
+    }
+
+    .empty-state p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 90%;
+      max-width: 400px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: rgba(16, 17, 24, 0.95);
+      border: 1px solid var(--gold);
+      color: var(--ivory);
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.75);
+      animation: toastIn 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    <!-- Top Club Header -->
+    <header class="top-bar">
+      <div class="brand-cluster" id="brandHomeTrigger" title="Return to Sanctuaries">
+        <div class="brand-emblem">ES</div>
+        <div class="brand-titles">
+          <span class="brand-name">EGG SOCIETY</span>
+          <span class="brand-subtitle">Private Culinary Club</span>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="room-pill-btn" id="headerRoomSwitcherBtn" title="Back to Rooms List" style="display:none;">
+          <i data-lucide="arrow-left" style="width:14px;height:14px;color:var(--gold)"></i>
+          <span id="headerActiveRoomName">All Rooms</span>
+        </button>
+        <button class="icon-btn" id="resetDemoBtn" title="Clear All Ledger Data">
+          <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Interactive 3D Golden Egg Hero Stage -->
+    <section class="hero-stage-wrapper" id="heroStageWrapper">
+      <canvas id="egg-canvas"></canvas>
+      <div class="webgl-fallback" id="webglFallback">
+        <div class="fallback-egg"></div>
+      </div>
+
+      <div class="hero-overlay">
+        <div class="hero-top-badges">
+          <div class="luxury-badge">
+            <i data-lucide="sparkles" style="width:12px;height:12px;"></i>
+            <span id="heroRoomBadgeText">FOUNDERS RESERVE</span>
+          </div>
+          <div class="luxury-badge" id="heroLiveCollectionBadge">
+            <span id="heroCollectionCount">0</span>&nbsp;GOLDEN EGGS
+          </div>
+        </div>
+
+        <div class="hero-bottom-caption">
+          <div class="hero-caption-left">
+            <h1 id="heroTitleText">The Golden Ledger</h1>
+            <p id="heroSubtitleText">Interactive 3D Harvest • Drag to inspect</p>
+          </div>
+          <div class="hero-stat-pill">
+            <div class="val" id="heroWeeklyAvgVal">0.0</div>
+            <div class="lbl">Avg / Member</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Dynamic Views -->
+    <main class="main-stage">
+
+      <!-- Shared Week Selector Strip (Shown when inside a room on Rankings/Weeks/Members) -->
+      <div class="week-selector-bar" id="globalWeekBar">
+        <button class="week-nav-btn" id="prevWeekBtn" title="Previous Week">
+          <i data-lucide="chevron-left" style="width:18px;height:18px;"></i>
+        </button>
+        <div class="week-info-center">
+          <div class="week-tag">
+            <span id="weekStatusLabel">SELECTED BATCH WEEK</span>
+            <button class="week-today-chip" id="jumpCurrentWeekBtn" style="display:none;">Current</button>
+          </div>
+          <div class="week-range-text" id="globalWeekRangeText">Nov 9 – Nov 15, 2026</div>
+        </div>
+        <button class="week-nav-btn" id="nextWeekBtn" title="Next Week">
+          <i data-lucide="chevron-right" style="width:18px;height:18px;"></i>
+        </button>
+      </div>
+
+      <!-- SCREEN 1: HOME (Room Selection & Sanctuary Overview) -->
+      <section class="screen-view active" id="screen-home">
+        <div style="margin-bottom: 18px;">
+          <h2 style="font-family:var(--font-serif);font-size:24px;font-weight:600;color:var(--ivory);">Welcome to the Sanctuary</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:4px;line-height:1.5;">
+            Select a private residence below to enter its weekly culinary ledger, or establish a new shared room.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <button class="btn-gold" id="openCreateRoomModalBtn">
+            <i data-lucide="plus-circle" style="width:18px;height:18px;"></i>
+            <span>Create New Room</span>
+          </button>
+        </div>
+
+        <div class="section-header">
+          <div class="section-title">
+            <i data-lucide="crown"></i>
+            <span>Registered Residences</span>
+          </div>
+          <span id="totalRoomsCountBadge" style="font-size:11px;color:var(--text-muted);font-weight:600;">0 Rooms</span>
+        </div>
+
+        <div class="rooms-grid" id="roomsListContainer"></div>
+      </section>
+
+      <!-- SCREEN 2: RANKINGS (Room Dashboard & Weekly Leaderboard) -->
+      <section class="screen-view" id="screen-rankings">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-value gold" id="dashTotalEggs">0</div>
+            <div class="kpi-label">Weekly Eggs</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-value" id="dashMemberCount">0</div>
+            <div class="kpi-label">Members</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-value" id="dashAvgEggs">0.0</div>
+            <div class="kpi-label">Avg / Resident</div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <div class="section-title">
+            <i data-lucide="trophy"></i>
+            <span>Weekly Society Standings</span>
+          </div>
+          <button class="section-action-btn" id="quickLogFromRankingsBtn">
+            <i data-lucide="egg" style="width:13px;height:13px;"></i> + Log Eggs
+          </button>
+        </div>
+
+        <div class="leaderboard-list" id="leaderboardContainer"></div>
+
+        <div class="section-header">
+          <div class="section-title">
+            <i data-lucide="calendar-days"></i>
+            <span>Daily Harvest Breakdown</span>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div class="daily-chart-grid" id="dashboardDailyChart"></div>
+        </div>
+
+        <div class="section-header">
+          <div class="section-title">
+            <i data-lucide="scroll-text"></i>
+            <span>Recent Ledger Entries</span>
+          </div>
+        </div>
+        <div class="entries-list" id="dashboardRecentEntries"></div>
+      </section>
+
+      <!-- SCREEN 3: WEEKS (Dedicated Weekly Analytics & Historical Batch Archive) -->
+      <section class="screen-view" id="screen-weeks">
+        <div class="glass-card gold-edge" style="margin-bottom: 16px;" id="weeklyChampionSpotlight"></div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-value gold" id="weekScreenTotal">0</div>
+            <div class="kpi-label">Batch Total</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-value" id="weekScreenAvg">0.0</div>
+            <div class="kpi-label">Member Avg</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-value" id="weekScreenPeakDay">-</div>
+            <div class="kpi-label">Peak Day</div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <div class="section-title">
+            <i data-lucide="bar-chart-3"></i>
+            <span>Monday – Sunday Trajectory</span>
+          </div>
+        </div>
+        <div class="glass-card" style="margin-bottom: 18px;">
+          <div class="daily-chart-grid" id="weeksScreenChart"></div>
+        </div>
+
+        <div class="section-header">
+          <div class="section-title">
+            <i data-lucide="pie-chart"></i>
+            <span>Member Share Breakdown</span>
+          </div>
+        </div>
+        <div class="leaderboard-list" id="weeksMemberBreakdown" style="margin-bottom: 18px;"></div>
+
+        <div class="section-header">
+          <div class="section-title">
+            <i data-lucide="history"></i>
+            <span>Complete Batch Log</span>
+          </div>
+        </div>
+        <div class="entries-list" id="weeksFullEntriesList"></div>
+      </section>
+
+      <!-- SCREEN 4: MEMBERS (Member Management & Profiles) -->
+      <section class="screen-view" id="screen-members">
+        <div class="section-header">
+          <div class="section-title">
+            <i data-lucide="users"></i>
+            <span>Inducted Room Members</span>
+          </div>
+          <button class="section-action-btn" id="openAddMemberModalBtn">
+            <i data-lucide="user-plus" style="width:14px;height:14px;"></i> Add Member
+          </button>
+        </div>
+
+        <div class="members-list" id="membersListContainer"></div>
+      </section>
+
+    </main>
+
+    <!-- Prominent Floating Add Consumption Button -->
+    <div class="fab-wrapper" id="fabWrapper" style="display:none;">
+      <button class="fab-add-btn" id="fabAddConsumptionBtn">
+        <i data-lucide="plus-circle" style="width:18px;height:18px;"></i>
+        <span>Add Consumption</span>
+      </button>
+    </div>
+
+    <!-- Bottom Glass Navigation Bar (Visible ONLY inside a selected Room) -->
+    <nav class="bottom-nav" id="bottomNavBar" style="display:none;">
+      <button class="nav-item" data-target="home">
+        <i data-lucide="layout-grid" style="width:20px;height:20px;"></i>
+        <span>Rooms</span>
+      </button>
+      <button class="nav-item active" data-target="rankings">
+        <i data-lucide="trophy" style="width:20px;height:20px;"></i>
+        <span>Rankings</span>
+      </button>
+      <button class="nav-item" data-target="weeks">
+        <i data-lucide="calendar-range" style="width:20px;height:20px;"></i>
+        <span>Weeks</span>
+      </button>
+      <button class="nav-item" data-target="members">
+        <i data-lucide="users" style="width:20px;height:20px;"></i>
+        <span>Members</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- MODAL 1: MANDATORY WEEK-FIRST ADD / EDIT CONSUMPTION -->
+  <div class="modal-backdrop" id="consumptionModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2 class="modal-title" id="consumptionModalTitle">Record Egg Harvest</h2>
+        <button class="icon-btn" id="closeConsumptionModalBtn">
+          <i data-lucide="x" style="width:18px;height:18px;"></i>
+        </button>
+      </div>
+
+      <!-- STEP 1: MANDATORY WEEK SELECTION -->
+      <div class="step-block active-step" id="stepBlock1">
+        <div class="step-label-row">
+          <span class="step-badge"><i data-lucide="calendar-check" style="width:13px;height:13px;"></i> STEP 1 • SELECT WEEK FIRST</span>
+          <span class="step-status" id="step1StatusText">Required</span>
+        </div>
+        <div class="week-confirm-box">
+          <div class="week-picker-controls">
+            <button class="week-nav-btn" type="button" id="modalPrevWeekBtn">
+              <i data-lucide="chevron-left" style="width:16px;height:16px;"></i>
+            </button>
+            <div style="text-align:center;">
+              <div style="font-size:13px;font-weight:800;color:var(--ivory);" id="modalWeekRangeDisplay">Nov 9 – Nov 15, 2026</div>
+              <div style="font-size:10px;color:var(--gold);" id="modalWeekSubLabel">Monday – Sunday Batch</div>
+            </div>
+            <button class="week-nav-btn" type="button" id="modalNextWeekBtn">
+              <i data-lucide="chevron-right" style="width:16px;height:16px;"></i>
+            </button>
+          </div>
+          <button type="button" class="confirm-week-btn" id="confirmWeekStepBtn">
+            <i data-lucide="lock-open" style="width:14px;height:14px;"></i>
+            <span id="confirmWeekBtnText">Confirm Selected Week to Proceed</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: SELECT MEMBER -->
+      <div class="step-block locked" id="stepBlock2">
+        <div class="step-label-row">
+          <span class="step-badge"><i data-lucide="user-check" style="width:13px;height:13px;"></i> STEP 2 • SELECT MEMBER</span>
+          <span class="step-status" id="step2StatusText">Select week first</span>
+        </div>
+        <div class="member-pills-grid" id="modalMemberPills"></div>
+      </div>
+
+      <!-- STEP 3: SELECT DAY WITHIN SELECTED WEEK -->
+      <div class="step-block locked" id="stepBlock3">
+        <div class="step-label-row">
+          <span class="step-badge"><i data-lucide="sun" style="width:13px;height:13px;"></i> STEP 3 • DAY IN SELECTED WEEK</span>
+          <span class="step-status" id="step3StatusText">Mon – Sun</span>
+        </div>
+        <div class="days-Clean-grid" id="modalDaysGrid"></div>
+      </div>
+
+      <!-- STEP 4: QUANTITY -->
+      <div class="step-block locked" id="stepBlock4">
+        <div class="step-label-row">
+          <span class="step-badge"><i data-lucide="egg" style="width:13px;height:13px;"></i> STEP 4 • EGG QUANTITY</span>
+          <span class="step-status">Min 1 Egg</span>
+        </div>
+        <div class="qty-control-row">
+          <button type="button" class="qty-stepper-btn" id="qtyMinusBtn">−</button>
+          <div class="qty-display">
+            <div class="num" id="modalQtyValue">2</div>
+            <div class="unit">Golden Eggs Consumed</div>
+          </div>
+          <button type="button" class="qty-stepper-btn" id="qtyPlusBtn">+</button>
+        </div>
+        <div class="preset-chips" id="qtyPresetsRow">
+          <button type="button" class="preset-chip" data-qty="1">1</button>
+          <button type="button" class="preset-chip active" data-qty="2">2</button>
+          <button type="button" class="preset-chip" data-qty="3">3</button>
+          <button type="button" class="preset-chip" data-qty="4">4</button>
+          <button type="button" class="preset-chip" data-qty="6">6</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button type="button" class="btn-secondary" id="cancelConsumptionBtn" style="flex:1;">Cancel</button>
+        <button type="button" class="btn-gold" id="saveConsumptionBtn" style="flex:2;">
+          <i data-lucide="check" style="width:16px;height:16px;"></i>
+          <span id="saveConsumptionBtnLabel">Seal Entry in Ledger</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: CREATE NEW ROOM -->
+  <div class="modal-backdrop" id="createRoomModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2 class="modal-title">Establish New Sanctuary</h2>
+        <button class="icon-btn" id="closeCreateRoomModalBtn">
+          <i data-lucide="x" style="width:18px;height:18px;"></i>
+        </button>
+      </div>
+      <form id="createRoomForm">
+        <div class="form-group">
+          <label class="form-label" for="newRoomNameInput">Residence / Shared Room Name</label>
+          <input type="text" id="newRoomNameInput" class="luxury-input" placeholder="e.g. The Mayfair Penthouse" maxlength="40" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="newRoomFounderInput">Founding Member Name (Optional)</label>
+          <input type="text" id="newRoomFounderInput" class="luxury-input" placeholder="e.g. Julian Vance" maxlength="32" />
+        </div>
+        <div style="display:flex;gap:10px;margin-top:18px;">
+          <button type="button" class="btn-secondary" id="cancelCreateRoomBtn" style="flex:1;">Cancel</button>
+          <button type="submit" class="btn-gold" style="flex:2;">Create & Enter Room</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: ADD MEMBER -->
+  <div class="modal-backdrop" id="addMemberModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2 class="modal-title">Induct New Member</h2>
+        <button class="icon-btn" id="closeAddMemberModalBtn">
+          <i data-lucide="x" style="width:18px;height:18px;"></i>
+        </button>
+      </div>
+      <form id="addMemberForm">
+        <div class="form-group">
+          <label class="form-label" for="memberNameInput">Member Full Name</label>
+          <input type="text" id="memberNameInput" class="luxury-input" placeholder="e.g. Clara Sterling" maxlength="32" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="memberInitialsInput">Monogram Initials (Auto-generated if blank)</label>
+          <input type="text" id="memberInitialsInput" class="luxury-input" placeholder="CS" maxlength="3" />
+        </div>
+        <div style="display:flex;gap:10px;margin-top:18px;">
+          <button type="button" class="btn-secondary" id="cancelAddMemberBtn" style="flex:1;">Cancel</button>
+          <button type="submit" class="btn-gold" style="flex:2;">Induct Member</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 4: CONFIRMATION DIALOG -->
+  <div class="modal-backdrop" id="confirmModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2 class="modal-title" id="confirmModalTitle">Confirm Action</h2>
+        <button class="icon-btn" id="closeConfirmModalBtn">
+          <i data-lucide="x" style="width:18px;height:18px;"></i>
+        </button>
+      </div>
+      <p id="confirmModalMessage" style="font-size:14px;color:var(--text-muted);line-height:1.5;margin-bottom:20px;"></p>
+      <div style="display:flex;gap:10px;">
+        <button type="button" class="btn-secondary" id="confirmCancelBtn" style="flex:1;">Cancel</button>
+        <button type="button" class="btn-gold" id="confirmProceedBtn" style="flex:1;background:var(--danger);color:#fff;border-color:transparent;">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    /********************************************************************
+     * 1. CORE UTILITIES & DATE / WEEK ENGINE (MONDAY - SUNDAY)
+     ********************************************************************/
+    const STORAGE_KEY = 'egg_society_luxury_ledger_v2';
+
+    function generateId(prefix = 'id') {
+      return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function getInitials(name) {
+      const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+      if (parts.length === 0) return 'ES';
+      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    function toISODate(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function parseISODate(isoStr) {
+      const [y, m, d] = String(isoStr).split('-').map(Number);
+      return new Date(y, (m || 1) - 1, d || 1, 12, 0, 0);
+    }
+
+    function getMondayOfWeek(dateInput) {
+      const d = dateInput instanceof Date ? new Date(dateInput) : parseISODate(dateInput);
+      d.setHours(12, 0, 0, 0);
+      const day = d.getDay(); // 0 = Sun, 1 = Mon, ...
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      d.setDate(diff);
+      return toISODate(d);
+    }
+
+    function addDaysISO(isoStr, daysToAdd) {
+      const d = parseISODate(isoStr);
+      d.setDate(d.getDate() + daysToAdd);
+      return toISODate(d);
+    }
+
+    function formatWeekRangeLabel(weekStartISO) {
+      const start = parseISODate(weekStartISO);
+      const end = parseISODate(addDaysISO(weekStartISO, 6));
+      const sameYear = start.getFullYear() === end.getFullYear();
+      const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const endStr = end.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+      return sameYear ? `${startStr} – ${endStr}` : `${startStr}, ${start.getFullYear()} – ${endStr}`;
+    }
+
+    function getWeekDaysArray(weekStartISO) {
+      const dayNamesShort = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        const iso = addDaysISO(weekStartISO, i);
+        const dObj = parseISODate(iso);
+        days.push({
+          iso,
+          dayShort: dayNamesShort[i],
+          dayNum: dObj.getDate(),
+          fullLabel: dObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+        });
+      }
+      return days;
+    }
+
+    /********************************************************************
+     * 2. APPLICATION STATE & EMPTY INITIALIZATION
+     ********************************************************************/
+    const currentMondayISO = getMondayOfWeek(new Date());
+
+    function createEmptyDefaultData() {
+      return {
+        activeRoomId: null,
+        selectedWeekStart: currentMondayISO,
+        rooms: [],
+        entries: []
+      };
+    }
+
+    let appData = loadAppData();
+    // Always land on the Room List screen ('home') on initial launch
+    appData.activeRoomId = null;
+    let currentScreen = 'home';
+
+    // Modal state for Mandatory Week-First Consumption Entry
+    let modalState = {
+      editingEntryId: null,
+      weekStartDate: currentMondayISO,
+      weekConfirmed: false,
+      memberId: null,
+      date: null,
+      quantity: 2
+    };
+
+    function loadAppData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          const emptyState = createEmptyDefaultData();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(emptyState));
+          return emptyState;
+        }
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.rooms) || !Array.isArray(parsed.entries)) {
+          const emptyState = createEmptyDefaultData();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(emptyState));
+          return emptyState;
+        }
+        if (!parsed.selectedWeekStart) {
+          parsed.selectedWeekStart = currentMondayISO;
+        }
+        return parsed;
+      } catch (e) {
+        return createEmptyDefaultData();
+      }
+    }
+
+    function saveAppData() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      } catch (e) {
+        showToast('Storage quota warning: unable to persist.');
+      }
+    }
+
+    function getActiveRoom() {
+      if (!appData.activeRoomId) return null;
+      return appData.rooms.find(r => r.id === appData.activeRoomId) || null;
+    }
+
+    /********************************************************************
+     * 3. DYNAMIC STATISTICS CALCULATIONS
+     ********************************************************************/
+    function computeRoomWeekStats(roomId, weekStartISO) {
+      const room = appData.rooms.find(r => r.id === roomId);
+      if (!room) {
+        return { totalEggs: 0, memberCount: 0, avgPerMember: 0, leaderboard: [], dailyBreakdown: [], entries: [] };
+      }
+
+      const validMemberMap = new Map();
+      room.members.forEach(m => validMemberMap.set(m.id, m));
+
+      // Filter entries strictly matching room and weekStartDate
+      const weekEntries = appData.entries.filter(
+        e => e.roomId === roomId && e.weekStartDate === weekStartISO
+      );
+
+      let totalEggs = 0;
+      const memberTotals = {};
+      room.members.forEach(m => { memberTotals[m.id] = 0; });
+
+      const weekDays = getWeekDaysArray(weekStartISO);
+      const dayTotals = {};
+      weekDays.forEach(d => { dayTotals[d.iso] = 0; });
+
+      weekEntries.forEach(entry => {
+        const qty = Number(entry.quantity) || 0;
+        if (qty > 0) {
+          totalEggs += qty;
+          if (memberTotals[entry.memberId] !== undefined) {
+            memberTotals[entry.memberId] += qty;
+          }
+          if (dayTotals[entry.date] !== undefined) {
+            dayTotals[entry.date] += qty;
+          }
+        }
+      });
+
+      const memberCount = room.members.length;
+      const avgPerMember = memberCount > 0 ? totalEggs / memberCount : 0;
+
+      const leaderboard = room.members.map(m => {
+        const count = memberTotals[m.id] || 0;
+        const share = totalEggs > 0 ? Math.round((count / totalEggs) * 100) : 0;
+        return {
+          ...m,
+          eggs: count,
+          share
+        };
+      }).sort((a, b) => b.eggs - a.eggs || a.name.localeCompare(b.name));
+
+      const maxDaily = Math.max(1, ...Object.values(dayTotals));
+      const todayISO = toISODate(new Date());
+
+      const dailyBreakdown = weekDays.map(d => ({
+        ...d,
+        eggs: dayTotals[d.iso] || 0,
+        heightPct: Math.round(((dayTotals[d.iso] || 0) / maxDaily) * 100),
+        isToday: d.iso === todayISO
+      }));
+
+      // Enrich entries with member names (gracefully handling deleted members)
+      const enrichedEntries = [...weekEntries]
+        .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt))
+        .map(e => {
+          const mem = validMemberMap.get(e.memberId);
+          return {
+            ...e,
+            memberName: mem ? mem.name : 'Former Member',
+            memberInitials: mem ? mem.avatarInitials : 'FM'
+          };
+        });
+
+      return {
+        totalEggs,
+        memberCount,
+        avgPerMember,
+        leaderboard,
+        dailyBreakdown,
+        entries: enrichedEntries
+      };
+    }
+
+    /********************************************************************
+     * 4. THREE.JS 3D GOLDEN EGG SCENE & COLLECTION ANIMATION
+     ********************************************************************/
+    let threeScene = null;
+    let triggerEggDropAnimation = () => {};
+
+    function initThreeHero() {
+      const canvas = document.getElementById('egg-canvas');
+      const fallback = document.getElementById('webglFallback');
+      const wrapper = document.getElementById('heroStageWrapper');
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      try {
+        const renderer = new THREE.WebGLRenderer({
+          canvas,
+          antialias: true,
+          alpha: true,
+          powerPreference: 'high-performance'
+        });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.setSize(wrapper.clientWidth, wrapper.clientHeight);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.25;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(36, wrapper.clientWidth / wrapper.clientHeight, 0.1, 100);
+        camera.position.set(0, 0.35, 5.4);
+
+        // Lighting setup for Champagne Gold studio reflections
+        const ambientLight = new THREE.AmbientLight(0xF5F0E6, 0.75);
+        scene.add(ambientLight);
+
+        const keyLight = new THREE.SpotLight(0xFFF3D1, 2.8);
+        keyLight.position.set(4, 6, 5);
+        keyLight.angle = Math.PI / 3;
+        keyLight.penumbra = 0.8;
+        scene.add(keyLight);
+
+        const rimLight = new THREE.PointLight(0xD6B46A, 2.2, 14);
+        rimLight.position.set(-4, 2.5, -3);
+        scene.add(rimLight);
+
+        const warmUnderLight = new THREE.PointLight(0x9E7D3B, 1.4, 8);
+        warmUnderLight.position.set(0, -2.4, 2);
+        scene.add(warmUnderLight);
+
+        // Root Group for Parallax
+        const rootGroup = new THREE.Group();
+        scene.add(rootGroup);
+
+        // Create Parametric Realistic Egg Geometry
+        function createEggGeometry(radius = 0.88, widthSegments = 64, heightSegments = 64) {
+          const geom = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
+          const pos = geom.attributes.position;
+          const v = new THREE.Vector3();
+          for (let i = 0; i < pos.count; i++) {
+            v.fromBufferAttribute(pos, i);
+            // Normalize y in [-1, 1]
+            const ny = v.y / radius;
+            // Taper top more than bottom for authentic avian egg silhouette
+            const taper = ny > 0 ? 1.0 - 0.24 * ny : 1.0 - 0.08 * Math.abs(ny);
+            v.x *= taper;
+            v.z *= taper;
+            v.y *= 1.28;
+            pos.setXYZ(i, v.x, v.y, v.z);
+          }
+          geom.computeVertexNormals();
+          return geom;
+        }
+
+        const goldEggMaterial = new THREE.MeshStandardMaterial({
+          color: 0xDFBD73,
+          metalness: 0.88,
+          roughness: 0.16,
+          emissive: 0x2A1E08,
+          emissiveIntensity: 0.22
+        });
+
+        const heroEggMesh = new THREE.Mesh(createEggGeometry(0.76, 64, 64), goldEggMaterial);
+        heroEggMesh.position.y = 0.32;
+        rootGroup.add(heroEggMesh);
+
+        // Sculpted Dark Obsidian Pedestal + Gold Trim Ring
+        const pedestalGroup = new THREE.Group();
+        pedestalGroup.position.y = -1.15;
+
+        const baseMat = new THREE.MeshStandardMaterial({
+          color: 0x12131C,
+          metalness: 0.5,
+          roughness: 0.35
+        });
+        const baseCylinder = new THREE.Mesh(new THREE.CylinderGeometry(1.35, 1.55, 0.36, 48), baseMat);
+        pedestalGroup.add(baseCylinder);
+
+        const dishCylinder = new THREE.Mesh(new THREE.CylinderGeometry(1.22, 1.15, 0.08, 48), new THREE.MeshStandardMaterial({
+          color: 0x090A0F,
+          metalness: 0.7,
+          roughness: 0.2
+        }));
+        dishCylinder.position.y = 0.19;
+        pedestalGroup.add(dishCylinder);
+
+        const trimRingMat = new THREE.MeshStandardMaterial({
+          color: 0xD6B46A,
+          metalness: 0.95,
+          roughness: 0.15,
+          emissive: 0x4A3714,
+          emissiveIntensity: 0.3
+        });
+        const trimRing = new THREE.Mesh(new THREE.TorusGeometry(1.3, 0.032, 20, 90), trimRingMat);
+        trimRing.rotation.x = Math.PI / 2;
+        trimRing.position.y = 0.18;
+        pedestalGroup.add(trimRing);
+
+        // Pulse Halo Ring for drop celebration
+        const pulseRingMat = new THREE.MeshBasicMaterial({
+          color: 0xF0D799,
+          transparent: true,
+          opacity: 0.0,
+          side: THREE.DoubleSide
+        });
+        const pulseRing = new THREE.Mesh(new THREE.RingGeometry(0.8, 1.05, 48), pulseRingMat);
+        pulseRing.rotation.x = Math.PI / 2;
+        pulseRing.position.y = 0.22;
+        pedestalGroup.add(pulseRing);
+
+        rootGroup.add(pedestalGroup);
+
+        // Mini Collected Eggs Nesting on the Pedestal
+        const miniEggsGroup = new THREE.Group();
+        miniEggsGroup.position.y = -0.92;
+        rootGroup.add(miniEggsGroup);
+
+        const miniEggGeo = createEggGeometry(0.15, 24, 24);
+        const collectedMiniMeshes = [];
+
+        function syncPedestalMiniEggs(targetCount) {
+          const capped = Math.min(Math.max(targetCount, 0), 14);
+          while (collectedMiniMeshes.length < capped) {
+            const idx = collectedMiniMeshes.length;
+            const angle = (idx / 10) * Math.PI * 2 + (idx * 0.4);
+            const rad = 0.62 + (idx % 3) * 0.18;
+            const m = new THREE.Mesh(miniEggGeo, goldEggMaterial);
+            m.position.set(Math.cos(angle) * rad, 0.02, Math.sin(angle) * rad);
+            m.rotation.set((Math.random() - 0.5) * 0.5, Math.random() * Math.PI, (Math.random() - 0.5) * 0.5);
+            miniEggsGroup.add(m);
+            collectedMiniMeshes.push(m);
+          }
+          while (collectedMiniMeshes.length > capped) {
+            const m = collectedMiniMeshes.pop();
+            miniEggsGroup.remove(m);
+          }
+        }
+
+        // Golden Ambient Particles
+        const isMobile = window.innerWidth < 600;
+        const particleCount = isMobile ? 36 : 65;
+        const particleGeo = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        for (let i = 0; i < particleCount; i++) {
+          positions[i * 3] = (Math.random() - 0.5) * 6.5;
+          positions[i * 3 + 1] = (Math.random() - 0.5) * 4.0;
+          positions[i * 3 + 2] = (Math.random() - 0.5) * 3.5 - 0.8;
+        }
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particleMat = new THREE.PointsMaterial({
+          color: 0xF0D799,
+          size: 0.045,
+          transparent: true,
+          opacity: 0.65
+        });
+        const particles = new THREE.Points(particleGeo, particleMat);
+        scene.add(particles);
+
+        // Mouse & Touch Parallax
+        let targetRotX = 0;
+        let targetRotY = 0;
+        let isPointerDown = false;
+        let lastX = 0;
+
+        function handlePointerMove(clientX, clientY) {
+          const rect = wrapper.getBoundingClientRect();
+          const nx = ((clientX - rect.left) / rect.width) * 2 - 1;
+          const ny = ((clientY - rect.top) / rect.height) * 2 - 1;
+          targetRotY = nx * 0.45;
+          targetRotX = ny * 0.22;
+          if (isPointerDown) {
+            const deltaX = clientX - lastX;
+            heroEggMesh.rotation.y += deltaX * 0.02;
+            lastX = clientX;
+          }
+        }
+
+        wrapper.addEventListener('mousemove', e => handlePointerMove(e.clientX, e.clientY));
+        wrapper.addEventListener('mousedown', e => { isPointerDown = true; lastX = e.clientX; });
+        window.addEventListener('mouseup', () => { isPointerDown = false; });
+
+        wrapper.addEventListener('touchstart', e => {
+          if (e.touches.length > 0) {
+            isPointerDown = true;
+            lastX = e.touches[0].clientX;
+          }
+        }, { passive: true });
+
+        wrapper.addEventListener('touchmove', e => {
+          if (e.touches.length > 0) {
+            handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
+          }
+        }, { passive: true });
+
+        wrapper.addEventListener('touchend', () => { isPointerDown = false; });
+
+        // Trigger Drop Animation when Consumption Entry is Saved
+        triggerEggDropAnimation = function(quantityAdded = 1) {
+          const drops = Math.min(quantityAdded, 5);
+          for (let i = 0; i < drops; i++) {
+            const dropEgg = new THREE.Mesh(miniEggGeo, goldEggMaterial);
+            const angle = Math.random() * Math.PI * 2;
+            const radius = 0.45 + Math.random() * 0.45;
+            dropEgg.position.set(Math.cos(angle) * radius, 2.3 + i * 0.35, Math.sin(angle) * radius);
+            dropEgg.scale.set(1.2, 1.2, 1.2);
+            rootGroup.add(dropEgg);
+
+            gsap.to(dropEgg.position, {
+              y: -0.88,
+              duration: 0.75,
+              delay: i * 0.09,
+              ease: 'bounce.out',
+              onComplete: () => {
+                gsap.to(dropEgg.scale, {
+                  x: 0.01, y: 0.01, z: 0.01,
+                  duration: 0.35,
+                  delay: 0.25,
+                  onComplete: () => rootGroup.remove(dropEgg)
+                });
+              }
+            });
+          }
+
+          // Hero Egg Joy Spin & Pulse
+          gsap.fromTo(heroEggMesh.scale,
+            { x: 1.18, y: 1.18, z: 1.18 },
+            { x: 1, y: 1, z: 1, duration: 0.7, ease: 'elastic.out(1, 0.4)' }
+          );
+          gsap.to(heroEggMesh.rotation, {
+            y: heroEggMesh.rotation.y + Math.PI * 2,
+            duration: 1.1,
+            ease: 'power3.out'
+          });
+
+          // Pedestal Gold Halo Pulse
+          pulseRing.scale.set(0.7, 0.7, 0.7);
+          pulseRingMat.opacity = 0.85;
+          gsap.to(pulseRing.scale, { x: 1.65, y: 1.65, z: 1.65, duration: 0.85, ease: 'power2.out' });
+          gsap.to(pulseRingMat, { opacity: 0, duration: 0.85, ease: 'power2.out' });
+        };
+
+        // Resize & Visibility Handlers
+        function onResize() {
+          if (!wrapper) return;
+          const w = wrapper.clientWidth;
+          const h = wrapper.clientHeight;
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
+        }
+
+        window.addEventListener('resize', onResize);
+
+        let isPageHidden = false;
+        document.addEventListener('visibilitychange', () => {
+          isPageHidden = document.hidden;
+        });
+
+        let clock = new THREE.Clock();
+        function animate() {
+          requestAnimationFrame(animate);
+          if (isPageHidden) return;
+
+          const elapsed = clock.getElapsedTime();
+          if (!prefersReducedMotion) {
+            heroEggMesh.position.y = 0.32 + Math.sin(elapsed * 1.8) * 0.09;
+            heroEggMesh.rotation.y += 0.0055;
+            particles.rotation.y = elapsed * 0.04;
+          }
+
+          rootGroup.rotation.y += (targetRotY - rootGroup.rotation.y) * 0.06;
+          rootGroup.rotation.x += (targetRotX - rootGroup.rotation.x) * 0.06;
+
+          renderer.render(scene, camera);
+        }
+
+        animate();
+        threeScene = { syncPedestalMiniEggs, onResize };
+      } catch (err) {
+        canvas.style.display = 'none';
+        fallback.style.display = 'flex';
+      }
+    }
+
+    /********************************************************************
+     * 5. UI RENDERING & NAVIGATION
+     ********************************************************************/
+    function switchScreen(targetScreen) {
+      // If user clicks 'home' (Rooms list), exit the active room context
+      if (targetScreen === 'home') {
+        appData.activeRoomId = null;
+        currentScreen = 'home';
+      } else {
+        const activeRoom = getActiveRoom();
+        if (!activeRoom) {
+          appData.activeRoomId = null;
+          currentScreen = 'home';
+        } else {
+          currentScreen = targetScreen;
+        }
+      }
+
+      const inRoomContext = Boolean(getActiveRoom() && currentScreen !== 'home');
+      const appShell = document.querySelector('.app-shell');
+      const bottomNav = document.getElementById('bottomNavBar');
+      const fabWrapper = document.getElementById('fabWrapper');
+      const headerSwitcherBtn = document.getElementById('headerRoomSwitcherBtn');
+      const heroWrapper = document.getElementById('heroStageWrapper');
+      const globalWeekBar = document.getElementById('globalWeekBar');
+
+      document.querySelectorAll('.screen-view').forEach(el => {
+        el.classList.toggle('active', el.id === `screen-${currentScreen}`);
+      });
+      document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.target === currentScreen);
+      });
+
+      if (!inRoomContext) {
+        // Room List screen: Hide bottom navigation, FAB, week bar, and room switcher
+        heroWrapper.classList.remove('compact');
+        globalWeekBar.style.display = 'none';
+        bottomNav.style.display = 'none';
+        fabWrapper.style.display = 'none';
+        headerSwitcherBtn.style.display = 'none';
+        appShell.classList.add('no-bottom-nav');
+      } else {
+        // Inside an entered Room: Show bottom navigation, FAB, week bar, and room switcher
+        heroWrapper.classList.add('compact');
+        globalWeekBar.style.display = 'flex';
+        bottomNav.style.display = 'grid';
+        fabWrapper.style.display = 'flex';
+        headerSwitcherBtn.style.display = 'inline-flex';
+        appShell.classList.remove('no-bottom-nav');
+      }
+
+      if (threeScene && threeScene.onResize) {
+        setTimeout(() => threeScene.onResize(), 360);
+      }
+
+      renderAll();
+    }
+
+    function animateCounter(el, newValue, isDecimal = false) {
+      if (!el) return;
+      const startVal = parseFloat(el.textContent) || 0;
+      const obj = { val: startVal };
+      gsap.to(obj, {
+        val: newValue,
+        duration: 0.55,
+        ease: 'power2.out',
+        onUpdate: () => {
+          el.textContent = isDecimal ? obj.val.toFixed(1) : Math.round(obj.val);
+        }
+      });
+    }
+
+    function renderAll() {
+      const activeRoom = getActiveRoom();
+      const weekStart = appData.selectedWeekStart;
+      const inRoomContext = Boolean(activeRoom && currentScreen !== 'home');
+
+      // Update Top Header & Hero Overlay
+      document.getElementById('headerActiveRoomName').textContent = 'All Rooms';
+      document.getElementById('heroRoomBadgeText').textContent = inRoomContext
+        ? activeRoom.name.toUpperCase()
+        : 'PRIVATE MEMBERS LEDGER';
+      document.getElementById('heroTitleText').textContent = inRoomContext
+        ? activeRoom.name
+        : 'The Golden Ledger';
+      document.getElementById('heroSubtitleText').textContent = inRoomContext
+        ? `Batch • ${formatWeekRangeLabel(weekStart)}`
+        : 'Interactive 3D Harvest • Drag to inspect';
+
+      // Calculate total stats for Hero (either active room or across all rooms on Home)
+      let heroTotalEggs = 0;
+      let heroAvg = 0;
+
+      const stats = activeRoom
+        ? computeRoomWeekStats(activeRoom.id, weekStart)
+        : { totalEggs: 0, memberCount: 0, avgPerMember: 0, leaderboard: [], dailyBreakdown: [], entries: [] };
+
+      if (inRoomContext) {
+        heroTotalEggs = stats.totalEggs;
+        heroAvg = stats.avgPerMember;
+      } else {
+        appData.rooms.forEach(r => {
+          const rs = computeRoomWeekStats(r.id, currentMondayISO);
+          heroTotalEggs += rs.totalEggs;
+        });
+        const totalMembersAllRooms = appData.rooms.reduce((acc, r) => acc + r.members.length, 0);
+        heroAvg = totalMembersAllRooms > 0 ? heroTotalEggs / totalMembersAllRooms : 0;
+      }
+
+      animateCounter(document.getElementById('heroCollectionCount'), heroTotalEggs, false);
+      animateCounter(document.getElementById('heroWeeklyAvgVal'), heroAvg, true);
+
+      if (threeScene && threeScene.syncPedestalMiniEggs) {
+        threeScene.syncPedestalMiniEggs(heroTotalEggs);
+      }
+
+      // Update Global Week Selector Bar
+      const isCurrentWeek = weekStart === currentMondayISO;
+      document.getElementById('globalWeekRangeText').textContent = formatWeekRangeLabel(weekStart);
+      document.getElementById('weekStatusLabel').textContent = isCurrentWeek ? 'CURRENT WEEKLY BATCH' : 'HISTORICAL WEEKLY BATCH';
+      document.getElementById('jumpCurrentWeekBtn').style.display = isCurrentWeek ? 'none' : 'inline-block';
+
+      renderHomeScreen();
+      if (inRoomContext) {
+        renderRankingsScreen(activeRoom, stats);
+        renderWeeksScreen(activeRoom, stats);
+        renderMembersScreen(activeRoom, stats);
+      }
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    /* SCREEN A: HOME (Exclusively Room List Screen) */
+    function renderHomeScreen() {
+      const container = document.getElementById('roomsListContainer');
+      const countBadge = document.getElementById('totalRoomsCountBadge');
+      if (countBadge) {
+        countBadge.textContent = `${appData.rooms.length} ${appData.rooms.length === 1 ? 'Residence' : 'Residences'}`;
+      }
+
+      if (appData.rooms.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="padding: 38px 20px;">
+            <div style="width:54px;height:54px;border-radius:50%;background:rgba(214,180,106,0.12);border:1px solid var(--gold-border);display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
+              <i data-lucide="sparkles" style="width:24px;height:24px;color:var(--gold);"></i>
+            </div>
+            <h3 style="font-family:var(--font-serif);font-size:22px;color:var(--ivory);font-weight:600;">Establish Your First Sanctuary</h3>
+            <p style="max-width:300px;margin:8px auto 18px;line-height:1.5;">
+              Your private ledger is currently empty. Create a shared room to induct members and track weekly golden egg harvests.
+            </p>
+            <button class="section-action-btn" id="emptyStateCreateRoomBtn" style="padding:9px 18px;font-size:13px;">
+              <i data-lucide="plus" style="width:15px;height:15px;"></i> Create First Room
+            </button>
+          </div>
+        `;
+        const emptyBtn = document.getElementById('emptyStateCreateRoomBtn');
+        if (emptyBtn) {
+          emptyBtn.addEventListener('click', () => {
+            document.getElementById('createRoomForm').reset();
+            document.getElementById('createRoomModal').classList.add('open');
+          });
+        }
+        return;
+      }
+
+      const currentWeekLabel = formatWeekRangeLabel(currentMondayISO);
+
+      container.innerHTML = appData.rooms.map(room => {
+        const rStats = computeRoomWeekStats(room.id, currentMondayISO);
+        const avatarsHtml = room.members.length > 0
+          ? room.members.slice(0, 5).map(m =>
+              `<div class="avatar-chip" title="${escapeHtml(m.name)}">${escapeHtml(m.avatarInitials)}</div>`
+            ).join('')
+          : `<div class="avatar-chip" style="border-style:dashed;color:var(--text-muted);">0</div>`;
+
+        return `
+          <div class="room-card" data-room-id="${room.id}">
+            <div class="room-card-top">
+              <div>
+                <div class="room-card-title">
+                  <span>${escapeHtml(room.name)}</span>
+                </div>
+                <div class="room-card-meta">Current Week • ${currentWeekLabel}</div>
+              </div>
+              <div class="room-egg-badge">
+                <span class="count">${rStats.totalEggs}</span>
+                <span class="unit">Eggs This Week</span>
+              </div>
+            </div>
+            <div class="room-card-footer">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="avatar-stack">${avatarsHtml}</div>
+                <span style="font-size:12px;color:var(--text-muted);font-weight:600;">
+                  ${room.members.length} ${room.members.length === 1 ? 'Member' : 'Members'}
+                </span>
+              </div>
+              <span style="font-size:12px;font-weight:700;color:var(--gold);display:inline-flex;align-items:center;gap:4px;">
+                Enter Room <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('.room-card').forEach(card => {
+        card.addEventListener('click', () => {
+          appData.activeRoomId = card.dataset.roomId;
+          appData.selectedWeekStart = currentMondayISO;
+          saveAppData();
+          switchScreen('rankings');
+        });
+      });
+    }
+
+    /* SCREEN B: RANKINGS (Room Dashboard) */
+    function renderRankingsScreen(activeRoom, stats) {
+      animateCounter(document.getElementById('dashTotalEggs'), stats.totalEggs, false);
+      animateCounter(document.getElementById('dashMemberCount'), stats.memberCount, false);
+      animateCounter(document.getElementById('dashAvgEggs'), stats.avgPerMember, true);
+
+      const lbContainer = document.getElementById('leaderboardContainer');
+      const maxMemberEggs = Math.max(1, ...(stats.leaderboard.map(m => m.eggs)));
+
+      if (!activeRoom || stats.leaderboard.length === 0) {
+        lbContainer.innerHTML = `
+          <div class="empty-state">
+            <p>No members in this room yet. Induct members to start the leaderboard.</p>
+          </div>
+        `;
+      } else {
+        lbContainer.innerHTML = stats.leaderboard.map((m, idx) => {
+          const rank = idx + 1;
+          const rankClass = rank <= 3 ? `rank-${rank}` : '';
+          const barWidth = m.eggs > 0 ? Math.max(8, Math.round((m.eggs / maxMemberEggs) * 100)) : 0;
+          const isWinner = rank === 1 && m.eggs > 0;
+
+          return `
+            <div class="leader-row ${rankClass}">
+              <div class="rank-badge">${isWinner ? '👑' : rank}</div>
+              <div class="member-avatar">${escapeHtml(m.avatarInitials)}</div>
+              <div class="leader-info">
+                <div class="leader-name-line">
+                  <span class="leader-name">${escapeHtml(m.name)}</span>
+                  ${isWinner ? '<span class="crown-pill">CHAMPION</span>' : ''}
+                </div>
+                <div class="leader-progress-track">
+                  <div class="leader-progress-fill" style="width:${barWidth}%;"></div>
+                </div>
+              </div>
+              <div class="leader-score">
+                <span class="eggs">${m.eggs}</span>
+                <span class="sub">${m.share}% of week</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      renderDailyChartInto(document.getElementById('dashboardDailyChart'), stats.dailyBreakdown);
+      renderEntriesListInto(document.getElementById('dashboardRecentEntries'), stats.entries.slice(0, 6));
+    }
+
+    /* SCREEN C: WEEKS (Dedicated Weekly Summary & Analytics) */
+    function renderWeeksScreen(activeRoom, stats) {
+      animateCounter(document.getElementById('weekScreenTotal'), stats.totalEggs, false);
+      animateCounter(document.getElementById('weekScreenAvg'), stats.avgPerMember, true);
+
+      // Peak day calculation
+      let peakDay = '-';
+      let maxDayVal = 0;
+      stats.dailyBreakdown.forEach(d => {
+        if (d.eggs > maxDayVal) {
+          maxDayVal = d.eggs;
+          peakDay = `${d.dayShort} (${d.eggs})`;
+        }
+      });
+      document.getElementById('weekScreenPeakDay').textContent = peakDay;
+
+      // Spotlight Card for Highest Consumer
+      const spotlightEl = document.getElementById('weeklyChampionSpotlight');
+      const topConsumer = stats.leaderboard[0];
+      if (topConsumer && topConsumer.eggs > 0) {
+        spotlightEl.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div class="member-avatar" style="width:48px;height:48px;font-size:16px;border-color:var(--gold);">
+                ${escapeHtml(topConsumer.avatarInitials)}
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:800;letter-spacing:0.14em;color:var(--gold);text-transform:uppercase;">
+                  👑 HIGHEST WEEKLY CONSUMER
+                </div>
+                <div style="font-size:18px;font-weight:800;color:var(--ivory);margin-top:2px;">
+                  ${escapeHtml(topConsumer.name)}
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);">
+                  Accounted for ${topConsumer.share}% of the room's weekly batch
+                </div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:26px;font-weight:800;color:var(--gold-light);line-height:1;">${topConsumer.eggs}</div>
+              <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;">Eggs</div>
+            </div>
+          </div>
+        `;
+      } else {
+        spotlightEl.innerHTML = `
+          <div style="text-align:center;padding:6px 0;">
+            <div style="font-size:12px;font-weight:700;color:var(--gold);">NO HARVEST RECORDED FOR THIS WEEK</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Tap "Add Consumption" below to log eggs for ${formatWeekRangeLabel(appData.selectedWeekStart)}.</div>
+          </div>
+        `;
+      }
+
+      renderDailyChartInto(document.getElementById('weeksScreenChart'), stats.dailyBreakdown);
+
+      // Member-wise Breakdown
+      const memberBreakdownEl = document.getElementById('weeksMemberBreakdown');
+      memberBreakdownEl.innerHTML = stats.leaderboard.map(m => `
+        <div class="leader-row">
+          <div class="member-avatar">${escapeHtml(m.avatarInitials)}</div>
+          <div class="leader-info">
+            <div class="leader-name-line">
+              <span class="leader-name">${escapeHtml(m.name)}</span>
+            </div>
+            <div class="leader-progress-track">
+              <div class="leader-progress-fill" style="width:${m.share}%;"></div>
+            </div>
+          </div>
+          <div class="leader-score">
+            <span class="eggs">${m.eggs}</span>
+            <span class="sub">${m.share}% share</span>
+          </div>
+        </div>
+      `).join('');
+
+      renderEntriesListInto(document.getElementById('weeksFullEntriesList'), stats.entries);
+    }
+
+    /* SCREEN D: MEMBERS (Member Management) */
+    function renderMembersScreen(activeRoom, stats) {
+      const container = document.getElementById('membersListContainer');
+      if (!activeRoom || activeRoom.members.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p>No members inducted in this sanctuary yet.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = stats.leaderboard.map(m => `
+        <div class="member-card">
+          <div class="member-card-left">
+            <div class="member-avatar">${escapeHtml(m.avatarInitials)}</div>
+            <div>
+              <div class="member-card-name">${escapeHtml(m.name)}</div>
+              <div class="member-card-stats">
+                Selected Week: <strong style="color:var(--gold-light);">${m.eggs} eggs</strong> (${m.share}% of room)
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="mini-icon-btn" title="Log Eggs for ${escapeHtml(m.name)}" data-quick-member="${m.id}">
+              <i data-lucide="plus" style="width:15px;height:15px;"></i>
+            </button>
+            <button class="mini-icon-btn danger" title="Remove Member" data-remove-member="${m.id}">
+              <i data-lucide="trash-2" style="width:15px;height:15px;"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('[data-quick-member]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          openConsumptionModal({ preselectMemberId: btn.dataset.quickMember });
+        });
+      });
+
+      container.querySelectorAll('[data-remove-member]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const memberId = btn.dataset.removeMember;
+          const mem = activeRoom.members.find(x => x.id === memberId);
+          if (!mem) return;
+          openConfirmModal(
+            'Remove Society Member',
+            `Remove ${mem.name} from ${activeRoom.name}? Their historical consumption entries will also be removed from this room.`,
+            () => {
+              activeRoom.members = activeRoom.members.filter(x => x.id !== memberId);
+              appData.entries = appData.entries.filter(e => !(e.roomId === activeRoom.id && e.memberId === memberId));
+              saveAppData();
+              renderAll();
+              showToast(`${mem.name} removed from room.`);
+            }
+          );
+        });
+      });
+    }
+
+    /* Shared Helper: Render 7-Day Interactive Bar Chart */
+    function renderDailyChartInto(container, dailyBreakdown) {
+      if (!container) return;
+      container.innerHTML = dailyBreakdown.map(d => `
+        <div class="day-col ${d.isToday ? 'is-today' : ''}" data-day-iso="${d.iso}" title="Tap to log eggs for ${d.fullLabel}">
+          <div class="day-bar-val">${d.eggs > 0 ? d.eggs : ''}</div>
+          <div class="day-bar-track">
+            <div class="day-bar-fill" style="height:${d.eggs > 0 ? Math.max(12, d.heightPct) : 0}%;"></div>
+          </div>
+          <div class="day-lbl">${d.dayShort}</div>
+          <div class="day-date-num">${d.dayNum}</div>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.day-col').forEach(col => {
+        col.addEventListener('click', () => {
+          openConsumptionModal({
+            preconfirmWeek: appData.selectedWeekStart,
+            preselectDate: col.dataset.dayIso
+          });
+        });
+      });
+    }
+
+    /* Shared Helper: Render Consumption Entries with Edit & Delete */
+    function renderEntriesListInto(container, entries) {
+      if (!container) return;
+      if (entries.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p>No consumption entries recorded for this week yet.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = entries.map(e => {
+        const dObj = parseISODate(e.date);
+        const formattedDay = dObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        return `
+          <div class="entry-item">
+            <div class="entry-left">
+              <div class="member-avatar" style="width:32px;height:32px;font-size:11px;">${escapeHtml(e.memberInitials)}</div>
+              <div>
+                <div class="entry-meta-title">${escapeHtml(e.memberName)}</div>
+                <div class="entry-meta-sub">${formattedDay}</div>
+              </div>
+            </div>
+            <div class="entry-right">
+              <span class="entry-qty-pill">${e.quantity} ${e.quantity === 1 ? 'egg' : 'eggs'}</span>
+              <button class="mini-icon-btn" title="Edit Entry" data-edit-entry="${e.id}">
+                <i data-lucide="pencil" style="width:13px;height:13px;"></i>
+              </button>
+              <button class="mini-icon-btn danger" title="Delete Entry" data-delete-entry="${e.id}">
+                <i data-lucide="trash-2" style="width:13px;height:13px;"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('[data-edit-entry]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const entry = appData.entries.find(x => x.id === btn.dataset.editEntry);
+          if (entry) openConsumptionModal({ editEntry: entry });
+        });
+      });
+
+      container.querySelectorAll('[data-delete-entry]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const entryId = btn.dataset.deleteEntry;
+          openConfirmModal(
+            'Delete Consumption Entry',
+            'Are you sure you want to remove this egg consumption record from the weekly ledger?',
+            () => {
+              appData.entries = appData.entries.filter(x => x.id !== entryId);
+              saveAppData();
+              renderAll();
+              showToast('Consumption entry deleted.');
+            }
+          );
+        });
+      });
+    }
+
+    /********************************************************************
+     * 6. MANDATORY WEEK-FIRST CONSUMPTION MODAL WORKFLOW
+     ********************************************************************/
+    function openConsumptionModal(options = {}) {
+      const activeRoom = getActiveRoom();
+      if (!activeRoom) {
+        showToast('Create a room first before logging consumption.');
+        return;
+      }
+      if (activeRoom.members.length === 0) {
+        showToast('Add at least one member to the room first.');
+        switchScreen('members');
+        document.getElementById('addMemberModal').classList.add('open');
+        return;
+      }
+
+      if (options.editEntry) {
+        const e = options.editEntry;
+        modalState = {
+          editingEntryId: e.id,
+          weekStartDate: e.weekStartDate,
+          weekConfirmed: true,
+          memberId: e.memberId,
+          date: e.date,
+          quantity: e.quantity
+        };
+        document.getElementById('consumptionModalTitle').textContent = 'Edit Ledger Entry';
+        document.getElementById('saveConsumptionBtnLabel').textContent = 'Update Ledger Entry';
+      } else {
+        const initialWeek = options.preconfirmWeek || appData.selectedWeekStart || currentMondayISO;
+        const weekDays = getWeekDaysArray(initialWeek);
+        const todayISO = toISODate(new Date());
+        const defaultDay = options.preselectDate || (weekDays.some(d => d.iso === todayISO) ? todayISO : weekDays[0].iso);
+
+        modalState = {
+          editingEntryId: null,
+          weekStartDate: initialWeek,
+          // Mandatory Week-First: User must confirm week in Step 1 before Steps 2-4 unlock
+          weekConfirmed: Boolean(options.preconfirmWeek),
+          memberId: options.preselectMemberId || activeRoom.members[0].id,
+          date: defaultDay,
+          quantity: 2
+        };
+        document.getElementById('consumptionModalTitle').textContent = 'Record Egg Harvest';
+        document.getElementById('saveConsumptionBtnLabel').textContent = 'Seal Entry in Ledger';
+      }
+
+      renderConsumptionModalState();
+      document.getElementById('consumptionModal').classList.add('open');
+    }
+
+    function renderConsumptionModalState() {
+      const activeRoom = getActiveRoom();
+      if (!activeRoom) return;
+
+      // Step 1: Week Selector & Mandatory Confirmation
+      document.getElementById('modalWeekRangeDisplay').textContent = formatWeekRangeLabel(modalState.weekStartDate);
+      const isCurr = modalState.weekStartDate === currentMondayISO;
+      document.getElementById('modalWeekSubLabel').textContent = isCurr ? 'Current Week (Mon – Sun)' : 'Historical / Custom Week (Mon – Sun)';
+
+      const confirmBtn = document.getElementById('confirmWeekStepBtn');
+      const step1Status = document.getElementById('step1StatusText');
+      if (modalState.weekConfirmed) {
+        confirmBtn.classList.add('confirmed');
+        confirmBtn.innerHTML = `<i data-lucide="check-circle-2" style="width:14px;height:14px;"></i> <span>Week Confirmed (${formatWeekRangeLabel(modalState.weekStartDate)})</span>`;
+        step1Status.textContent = 'Confirmed ✓';
+        step1Status.style.color = 'var(--success)';
+      } else {
+        confirmBtn.classList.remove('confirmed');
+        confirmBtn.innerHTML = `<i data-lucide="check" style="width:14px;height:14px;"></i> <span>Tap to Confirm This Week First</span>`;
+        step1Status.textContent = 'Step 1 Required';
+        step1Status.style.color = 'var(--gold)';
+      }
+
+      // Lock/Unlock Steps 2, 3, 4 based on Step 1 Confirmation
+      ['stepBlock2', 'stepBlock3', 'stepBlock4'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.toggle('locked', !modalState.weekConfirmed);
+        el.classList.toggle('active-step', modalState.weekConfirmed);
+      });
+
+      // Ensure modalState.date belongs strictly to modalState.weekStartDate
+      const weekDays = getWeekDaysArray(modalState.weekStartDate);
+      if (!weekDays.some(d => d.iso === modalState.date)) {
+        const todayISO = toISODate(new Date());
+        modalState.date = weekDays.some(d => d.iso === todayISO) ? todayISO : weekDays[0].iso;
+      }
+
+      // Step 2: Member Pills
+      const memberPillsEl = document.getElementById('modalMemberPills');
+      memberPillsEl.innerHTML = activeRoom.members.map(m => {
+        const selected = m.id === modalState.memberId;
+        return `
+          <div class="member-select-pill ${selected ? 'selected' : ''}" data-select-member="${m.id}">
+            <div class="member-avatar" style="width:26px;height:26px;font-size:10px;">${escapeHtml(m.avatarInitials)}</div>
+            <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(m.name)}</span>
+          </div>
+        `;
+      }).join('');
+
+      memberPillsEl.querySelectorAll('[data-select-member]').forEach(pill => {
+        pill.addEventListener('click', () => {
+          modalState.memberId = pill.dataset.selectMember;
+          renderConsumptionModalState();
+        });
+      });
+
+      const selectedMemberObj = activeRoom.members.find(m => m.id === modalState.memberId);
+      document.getElementById('step2StatusText').textContent = selectedMemberObj ? selectedMemberObj.name : 'Choose member';
+
+      // Step 3: 7-Day Selector strictly inside Selected Week
+      const daysGridEl = document.getElementById('modalDaysGrid');
+      daysGridEl.innerHTML = weekDays.map(d => {
+        const selected = d.iso === modalState.date;
+        return `
+          <div class="day-select-pill ${selected ? 'selected' : ''}" data-select-day="${d.iso}">
+            <span class="d-name">${d.dayShort}</span>
+            <span class="d-num">${d.dayNum}</span>
+          </div>
+        `;
+      }).join('');
+
+      daysGridEl.querySelectorAll('[data-select-day]').forEach(pill => {
+        pill.addEventListener('click', () => {
+          modalState.date = pill.dataset.selectDay;
+          renderConsumptionModalState();
+        });
+      });
+
+      const selectedDayObj = weekDays.find(d => d.iso === modalState.date);
+      document.getElementById('step3StatusText').textContent = selectedDayObj ? selectedDayObj.fullLabel : 'Select day';
+
+      // Step 4: Quantity
+      document.getElementById('modalQtyValue').textContent = modalState.quantity;
+      document.querySelectorAll('#qtyPresetsRow .preset-chip').forEach(chip => {
+        chip.classList.toggle('active', Number(chip.dataset.qty) === modalState.quantity);
+      });
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function saveConsumptionEntry() {
+      const activeRoom = getActiveRoom();
+      if (!activeRoom) return;
+
+      if (!modalState.weekConfirmed) {
+        showToast('Please confirm the week in Step 1 first.');
+        return;
+      }
+      if (!modalState.memberId) {
+        showToast('Please select a member in Step 2.');
+        return;
+      }
+
+      const validWeekDays = getWeekDaysArray(modalState.weekStartDate).map(d => d.iso);
+      if (!modalState.date || !validWeekDays.includes(modalState.date)) {
+        showToast('Selected day must belong to the chosen week.');
+        return;
+      }
+
+      const qty = Math.max(1, Math.round(Number(modalState.quantity) || 0));
+      if (qty <= 0) {
+        showToast('Egg quantity must be at least 1.');
+        return;
+      }
+
+      const nowISO = new Date().toISOString();
+
+      if (modalState.editingEntryId) {
+        const idx = appData.entries.findIndex(e => e.id === modalState.editingEntryId);
+        if (idx !== -1) {
+          appData.entries[idx] = {
+            ...appData.entries[idx],
+            weekStartDate: modalState.weekStartDate,
+            memberId: modalState.memberId,
+            date: modalState.date,
+            quantity: qty,
+            updatedAt: nowISO
+          };
+        }
+        showToast('Ledger entry updated.');
+      } else {
+        appData.entries.push({
+          id: generateId('ent'),
+          roomId: activeRoom.id,
+          memberId: modalState.memberId,
+          weekStartDate: modalState.weekStartDate,
+          date: modalState.date,
+          quantity: qty,
+          createdAt: nowISO,
+          updatedAt: nowISO
+        });
+        showToast(`+${qty} Golden ${qty === 1 ? 'Egg' : 'Eggs'} sealed in ledger!`);
+      }
+
+      // Synchronize dashboard week to the week where the entry was logged
+      appData.selectedWeekStart = modalState.weekStartDate;
+      saveAppData();
+
+      document.getElementById('consumptionModal').classList.remove('open');
+      renderAll();
+      triggerEggDropAnimation(qty);
+    }
+
+    /********************************************************************
+     * 7. CONFIRMATION MODAL, TOASTS & HELPERS
+     ********************************************************************/
+    let pendingConfirmCallback = null;
+
+    function openConfirmModal(title, message, onConfirm) {
+      document.getElementById('confirmModalTitle').textContent = title;
+      document.getElementById('confirmModalMessage').textContent = message;
+      pendingConfirmCallback = onConfirm;
+      document.getElementById('confirmModal').classList.add('open');
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `<i data-lucide="sparkles" style="width:16px;height:16px;color:var(--gold);flex-shrink:0;"></i> <span>${escapeHtml(message)}</span>`;
+      container.appendChild(toast);
+      if (window.lucide) lucide.createIcons();
+
+      setTimeout(() => {
+        gsap.to(toast, {
+          opacity: 0,
+          y: -10,
+          duration: 0.25,
+          onComplete: () => toast.remove()
+        });
+      }, 2800);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    /********************************************************************
+     * 8. EVENT LISTENERS & INITIALIZATION
+     ********************************************************************/
+    function bindEvents() {
+      // Bottom Navigation
+      document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => {
+        btn.addEventListener('click', () => switchScreen(btn.dataset.target));
+      });
+
+      // Brand Header & Room Switcher Pill
+      document.getElementById('brandHomeTrigger').addEventListener('click', () => switchScreen('home'));
+      document.getElementById('headerRoomSwitcherBtn').addEventListener('click', () => switchScreen('home'));
+
+      // Clear All Data Button
+      document.getElementById('resetDemoBtn').addEventListener('click', () => {
+        openConfirmModal(
+          'Clear All Society Data',
+          'Are you sure you want to permanently clear all rooms, members, and consumption entries from this device?',
+          () => {
+            appData = createEmptyDefaultData();
+            saveAppData();
+            switchScreen('home');
+            showToast('All ledger data cleared.');
+          }
+        );
+      });
+
+      // Global Week Navigation Bar
+      document.getElementById('prevWeekBtn').addEventListener('click', () => {
+        appData.selectedWeekStart = addDaysISO(appData.selectedWeekStart, -7);
+        saveAppData();
+        renderAll();
+      });
+
+      document.getElementById('nextWeekBtn').addEventListener('click', () => {
+        appData.selectedWeekStart = addDaysISO(appData.selectedWeekStart, 7);
+        saveAppData();
+        renderAll();
+      });
+
+      document.getElementById('jumpCurrentWeekBtn').addEventListener('click', () => {
+        appData.selectedWeekStart = currentMondayISO;
+        saveAppData();
+        renderAll();
+      });
+
+      // Floating Add Consumption Button & Quick Log
+      document.getElementById('fabAddConsumptionBtn').addEventListener('click', () => openConsumptionModal());
+      document.getElementById('quickLogFromRankingsBtn').addEventListener('click', () => openConsumptionModal());
+
+      // Consumption Modal Controls
+      document.getElementById('closeConsumptionModalBtn').addEventListener('click', () => {
+        document.getElementById('consumptionModal').classList.remove('open');
+      });
+      document.getElementById('cancelConsumptionBtn').addEventListener('click', () => {
+        document.getElementById('consumptionModal').classList.remove('open');
+      });
+
+      document.getElementById('modalPrevWeekBtn').addEventListener('click', () => {
+        modalState.weekStartDate = addDaysISO(modalState.weekStartDate, -7);
+        modalState.weekConfirmed = false;
+        renderConsumptionModalState();
+      });
+
+      document.getElementById('modalNextWeekBtn').addEventListener('click', () => {
+        modalState.weekStartDate = addDaysISO(modalState.weekStartDate, 7);
+        modalState.weekConfirmed = false;
+        renderConsumptionModalState();
+      });
+
+      document.getElementById('confirmWeekStepBtn').addEventListener('click', () => {
+        modalState.weekConfirmed = true;
+        renderConsumptionModalState();
+      });
+
+      document.getElementById('qtyMinusBtn').addEventListener('click', () => {
+        modalState.quantity = Math.max(1, modalState.quantity - 1);
+        renderConsumptionModalState();
+      });
+
+      document.getElementById('qtyPlusBtn').addEventListener('click', () => {
+        modalState.quantity = Math.min(36, modalState.quantity + 1);
+        renderConsumptionModalState();
+      });
+
+      document.querySelectorAll('#qtyPresetsRow .preset-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          modalState.quantity = Number(chip.dataset.qty);
+          renderConsumptionModalState();
+        });
+      });
+
+      document.getElementById('saveConsumptionBtn').addEventListener('click', saveConsumptionEntry);
+
+      // Create Room Modal Controls
+      const createRoomModal = document.getElementById('createRoomModal');
+      document.getElementById('openCreateRoomModalBtn').addEventListener('click', () => {
+        document.getElementById('createRoomForm').reset();
+        createRoomModal.classList.add('open');
+      });
+      document.getElementById('closeCreateRoomModalBtn').addEventListener('click', () => createRoomModal.classList.remove('open'));
+      document.getElementById('cancelCreateRoomBtn').addEventListener('click', () => createRoomModal.classList.remove('open'));
+
+      document.getElementById('createRoomForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const roomName = document.getElementById('newRoomNameInput').value.trim();
+        const founderName = document.getElementById('newRoomFounderInput').value.trim();
+        if (!roomName) return;
+
+        const newRoom = {
+          id: generateId('room'),
+          name: roomName,
+          createdAt: new Date().toISOString(),
+          members: founderName ? [{
+            id: generateId('mem'),
+            name: founderName,
+            avatarInitials: getInitials(founderName)
+          }] : []
+        };
+
+        appData.rooms.unshift(newRoom);
+        appData.activeRoomId = newRoom.id;
+        appData.selectedWeekStart = currentMondayISO;
+        saveAppData();
+
+        createRoomModal.classList.remove('open');
+        switchScreen('rankings');
+        showToast(`Welcome to ${roomName}!`);
+      });
+
+      // Add Member Modal Controls
+      const addMemberModal = document.getElementById('addMemberModal');
+      document.getElementById('openAddMemberModalBtn').addEventListener('click', () => {
+        document.getElementById('addMemberForm').reset();
+        addMemberModal.classList.add('open');
+      });
+      document.getElementById('closeAddMemberModalBtn').addEventListener('click', () => addMemberModal.classList.remove('open'));
+      document.getElementById('cancelAddMemberBtn').addEventListener('click', () => addMemberModal.classList.remove('open'));
+
+      document.getElementById('addMemberForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const activeRoom = getActiveRoom();
+        if (!activeRoom) return;
+
+        const name = document.getElementById('memberNameInput').value.trim();
+        const customInitials = document.getElementById('memberInitialsInput').value.trim().toUpperCase();
+        if (!name) return;
+
+        activeRoom.members.push({
+          id: generateId('mem'),
+          name,
+          avatarInitials: customInitials || getInitials(name)
+        });
+
+        saveAppData();
+        addMemberModal.classList.remove('open');
+        renderAll();
+        showToast(`${name} inducted into ${activeRoom.name}.`);
+      });
+
+      // Confirmation Modal Controls
+      const confirmModal = document.getElementById('confirmModal');
+      document.getElementById('closeConfirmModalBtn').addEventListener('click', () => confirmModal.classList.remove('open'));
+      document.getElementById('confirmCancelBtn').addEventListener('click', () => confirmModal.classList.remove('open'));
+      document.getElementById('confirmProceedBtn').addEventListener('click', () => {
+        confirmModal.classList.remove('open');
+        if (typeof pendingConfirmCallback === 'function') {
+          pendingConfirmCallback();
+          pendingConfirmCallback = null;
+        }
+      });
+    }
+
+    window.onload = function() {
+      initThreeHero();
+      bindEvents();
+      switchScreen('home');
+    };
+  </script>
+</body>
+</html>
